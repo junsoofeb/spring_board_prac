@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.google.gson.Gson;
 import com.web.domain.Board;
 import com.web.domain.Reply;
 import com.web.service.BoardService;
@@ -52,19 +50,19 @@ public class IndexController {
 
 		return "saveBoard";
 	}
-	
+
 	@RequestMapping(value = "/deleteBoard", method = RequestMethod.GET)
 	public String deleteBoard() {
 
 		return "deleteBoard";
 	}
-	
+
 	@RequestMapping(value = "/tempBoard", method = RequestMethod.GET)
 	public String tempBoard() {
 
 		return "tempBoard";
 	}
-	
+
 	@RequestMapping(value = "/write", method = RequestMethod.GET)
 	public String write() {
 		return "write";
@@ -79,11 +77,13 @@ public class IndexController {
 	public String writeAction(HttpServletRequest req, @RequestParam("file") MultipartFile file,
 			@RequestParam("title") String title, @RequestParam("contents") String contents)
 			throws IllegalStateException, IOException {
-		String PATH = req.getSession().getServletContext().getRealPath("/") + "resources/";
+		String PATH = req.getSession().getServletContext().getRealPath("/");
+		System.out.println(PATH);
 		if (!file.getOriginalFilename().isEmpty()) {
 			file.transferTo(new File(PATH + file.getOriginalFilename()));
+			System.out.print(file.getOriginalFilename());
 		}
-		s.addBoard(new Board(0, title, contents, file.getOriginalFilename()));
+		s.addBoard(new Board(0, title, contents, file.getOriginalFilename())); // 생성자만들어서 dto
 		return "board";
 	}
 
@@ -93,13 +93,15 @@ public class IndexController {
 		return s.getBoard();
 	}
 
-	@RequestMapping(value = "/boardView", method = RequestMethod.GET)
+	@RequestMapping(value = "/boardView", method = RequestMethod.GET) // 상세보기 API
 	@ResponseBody
 	public Board boardList(@RequestParam("idx") int idx) {
 		return s.getBoardOne(idx);
 	}
 
-	@RequestMapping(value = "/replyList", method = RequestMethod.GET)
+	/* 댓글작성 api */
+
+	@RequestMapping(value = "/replyList", method = RequestMethod.GET) // 댓글
 	@ResponseBody
 	public List<Reply> replyList(@RequestParam("idx") int boardIdx) {
 		return s.getReply(boardIdx);
